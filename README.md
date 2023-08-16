@@ -9,4 +9,14 @@ Repositório da disciplina Eletiva II - Programação de Scripts, 5º semestre A
 ##Para forçar a atualização
     npm audit fix --force
 
+##Para criar a migration
+    npx prisma migrate dev --name _nome_da_tabela_
+
+##.
+    npx prisma generate
+
+##Para checar se deu certo
+    npx prisma studio
+
+2023-06-18Too:00:002
 ##

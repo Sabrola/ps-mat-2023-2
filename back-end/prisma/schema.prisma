@@ -6,18 +6,18 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
 model Car {
-  id                  Int   @id @default(autoincrement)
+  id                  Int   @id @default(autoincrement())
   brand               String
   model               String
   color               String
   year_manufacture    Int
-  imported            Boolean
-  plates              String
-  selling_date        DateTime
-  selling_price       Decimal
+  imported            Boolean @default(false)
+  plates              String @unique            //Índice unico
+  selling_date        DateTime?                 //Campo anulável
+  selling_price       Decimal?                  //Campo anulável
 }
