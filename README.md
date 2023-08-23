@@ -12,7 +12,7 @@ Repositório da disciplina Eletiva II - Programação de Scripts, 5º semestre A
 ##Para criar a migration
     npx prisma migrate dev --name _nome_da_tabela_
 
-##.
+##Sempre rode depois de criar uma tabela
     npx prisma generate
 
 ##Para checar se deu certo
