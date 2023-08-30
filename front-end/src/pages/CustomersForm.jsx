@@ -2,15 +2,28 @@ import React from 'react'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
+import Button from '@mui/material/Button'
+import Toolbar from '@mui/material/Toolbar'
+import Box from '@mui/material/Box'
+import myfetch from '../utils/myfetch'
+import Waiting from '../components/ui/waiting'
+import Notification from '../components/ui/Notification'
+import { useNavigate} from 'react-router-dom'
 
 export default function CustomersForm() {
 
+  const navigate = useNavigate()
+
   const [state, setState] = React.useState({
-    customer:{}   //Objeto vazio
+    customer:{},   //Objeto vazio
+    showWaiting: false,
+    notification: {   show: false, severity: 'success', message: ''   }
   })
 
   const {
-    customer 
+    customer,
+    showWaiting,
+    notification
   } = state
 
   const states = [
@@ -22,15 +35,61 @@ export default function CustomersForm() {
     {label: 'Rio de Janeiro', value: 'RJ'},
     {label: 'São Paulo', value: 'SP'}
   ]
+
+  function handleFieldChange(event) {
+    const newCustomer = {...customer}
+    newCustomer[event.target.name] = event.target.value
+    setState({...state, customer: newCustomer})
+  }
+
+  async function handleFormSubmit(event) {
+    setState({...state, showWaiting: true}) //Exibe o backdrop
+    event.preventDefault(false) //Evita o recarregamento da página
+    try {
+      const result = await myfetch.post('customer', customer)
+      setState({...state,
+        showWaiting: false, //Esconde o backdrop
+        notification: {   show:true, severity: 'success', message: 'Dados foram salvos com sucesso!'}
+      })
+      //TODO: Voltar para a pagina de listagem
+    }
+    catch(error) {
+      setState({...state,
+        showWaiting: false, //Esconde o backdrop
+        notification: {   show:true, severity: 'error', message: 'Erro! "' + error.message + '"'}
+      })
+    }
+  }
+
+  function handleNotificationClose() {
+    const status = notifitication.severity
+      //Fecha a barra de notificação
+      setState({...state, notification: { show: false, severity: status, message: ''  }})
+
+      //Volta para a pagina de clientes
+      if (status === 'success') navigate('/customers')
+  }
   
   return(
     <>
+
+      <Waiting show={showWaiting} />
+
+      <Notification
+        show={notification.show}
+        severity={notification.severity}
+        message={notification.message}
+        onClose={handleNotificationClose}
+      />
+
       <Typography variant="h1" sx={{ mb: '50px' }}>
         Cadastro de clientes
       </Typography>
 
-      <form>
-        <TextField
+      <form onSubmit={handleFormSubmit}>
+
+        <Box className="form_fields">
+          <TextField
           id="name"
           name="name"
           label="Nome Completo"
@@ -38,6 +97,7 @@ export default function CustomersForm() {
           required
           fullWidth
           value={customer.name}
+          onChange={handleFieldChange}
           />
 
           <TextField
@@ -48,6 +108,7 @@ export default function CustomersForm() {
           required
           fullWidth
           value={customer.ident_document}
+          onChange={handleFieldChange}
           />
 
           <TextField
@@ -57,6 +118,7 @@ export default function CustomersForm() {
           variant="filled"
           fullWidth
           value={customer.birth_date}
+          onChange={handleFieldChange}
           />
 
           <TextField
@@ -68,6 +130,7 @@ export default function CustomersForm() {
           fullWidth
           placeholder='Ex. Rua Principal'
           value={customer.street_name}
+          onChange={handleFieldChange}
           />
 
           <TextField
@@ -78,6 +141,7 @@ export default function CustomersForm() {
           required
           fullWidth
           value={customer.house_number}
+          onChange={handleFieldChange}
           />
 
           <TextField
@@ -88,16 +152,18 @@ export default function CustomersForm() {
           fullWidth
           placeholder='Apt., bloco, casa, etc.'
           value={customer.complements}
+          onChange={handleFieldChange}
           />
 
           <TextField
-          id="neighborhood"
-          name="neighborhood"
+          id="neightborhood"
+          name="neightborhood"
           label="Bairro"
           variant="filled"
           required
           fullWidth
           value={customer.neighborhood}
+          onChange={handleFieldChange}
           />
 
           <TextField
@@ -108,6 +174,7 @@ export default function CustomersForm() {
           required
           fullWidth
           value={customer.municipality}
+          onChange={handleFieldChange}
           />
 
           <TextField
@@ -118,6 +185,7 @@ export default function CustomersForm() {
           variant="filled"
           required
           fullWidth
+          onChange={handleFieldChange}
           value={customer.state}
         >
           {states.map((option) => (
@@ -135,6 +203,7 @@ export default function CustomersForm() {
           required
           fullWidth
           value={customer.phone}
+          onChange={handleFieldChange}
           />
 
           <TextField
@@ -145,7 +214,15 @@ export default function CustomersForm() {
           required
           fullWidth
           value={customer.email}
+          onChange={handleFieldChange}
           />
+        </Box>
+
+        <Toolbar className="salvar_voltar">
+          <Button variant="contained" color="secondary" type="submit"> Salvar </Button>
+          <Button variant="outlined"> Voltar </Button>
+        </Toolbar>
+
       </form>
     </>
   )

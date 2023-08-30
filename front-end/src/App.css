@@ -14,14 +14,21 @@
   visibility: visible;
 }
 
-form {
+.salvar_voltar {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.form_fields {
   margin: 0 auto;
+  width: 70%;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
 }
 
-form .MuiFormControl-root {
+.form_fields .MuiFormControl-root {
   min-width: 250px;
   max-width: 600px;
   width: 600px;
