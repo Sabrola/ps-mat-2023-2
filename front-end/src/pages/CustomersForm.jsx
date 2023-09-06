@@ -8,22 +8,48 @@ import Box from '@mui/material/Box'
 import myfetch from '../utils/myfetch'
 import Waiting from '../components/ui/waiting'
 import Notification from '../components/ui/Notification'
-import { useNavigate} from 'react-router-dom'
+import { useNavigate, useParams} from 'react-router-dom'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
+import InputMask from 'react-input-mask'
+import { DatePicker, LocalizationProvider} from '@mui/x-date-pickers'
+import { AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns'
+import ptLocale from 'date-fns/locale/pt-BR'
+import { parseISO } from 'date-fns'
 
 export default function CustomersForm() {
 
   const navigate = useNavigate()
+  const params = useParams()
+
+  //Valores
+  const customerDefaults = {
+    name: '',
+    ident_document: '',
+    birth_date: '',
+    street_name: '',
+    house_number: '',
+    complements: '',
+    neightborhood: '',
+    municipality: '',
+    state:'',
+    phone: '',
+    email:''
+  }
 
   const [state, setState] = React.useState({
-    customer:{},   //Objeto vazio
+    customer: customerDefaults,
     showWaiting: false,
-    notification: {   show: false, severity: 'success', message: ''   }
+    notification: {   show: false, severity: 'success', message: ''   },
+    openDialogue: false,
+    isFormModified: false
   })
 
   const {
     customer,
     showWaiting,
-    notification
+    notification,
+    openDialogue,
+    isFormModified
   } = state
 
   const states = [
@@ -36,23 +62,66 @@ export default function CustomersForm() {
     {label: 'São Paulo', value: 'SP'}
   ]
 
+  const maskFormatChars = {
+    '9': '[0-9]',
+    'a': '[A-Za-z]',
+    '*': '[a-Za-z0-9]',
+    '_': '[\s0-9 ]' //Um espaço em branco ou um dígito
+  }
+
+  //useEffect com vetor de dependências vazio. Será executado uma vez, quando o componente for carregado
+  React.useEffect(() => {
+    //Verifica se existe o parâmetro id na rota.
+    //Caso exista, chama a função fetchData() para carregar os dados indícados pelo parâmetro para edição
+    if(params.id) fetchData()
+  }, [])
+
+  async function fetchData() {
+    //Exibe o backdrop parar indicar que uma operação está ocorrendo em segundo plano
+    setState({...state, showWaiting: true}) //Exibe o backdrop
+    try {
+      const result = await myfetch.get(`customer/${params.id}`)
+
+      //
+      result.birth_date = parseISO(result.birth_date)
+
+      setState({...state, showWaiting: false, customer: result})
+    }
+    catch(error) {
+      setState({...state,
+        showWaiting: false, //Esconde o backdrop
+        notification: {   show:true, severity: 'error', message: 'Erro! "' + error.message + '"'}
+      })
+    }
+  }
+
   function handleFieldChange(event) {
     const newCustomer = {...customer}
     newCustomer[event.target.name] = event.target.value
-    setState({...state, customer: newCustomer})
+
+    setState({...state, customer: newCustomer,
+      isFormModified: true // O formulario foi alterado
+    })
   }
 
   async function handleFormSubmit(event) {
     setState({...state, showWaiting: true}) //Exibe o backdrop
     event.preventDefault(false) //Evita o recarregamento da página
     try {
-      const result = await myfetch.post('customer', customer)
+
+      let result
+
+      //Se existir o campo id nos dados do cliente, chama o método PUT para alteração
+      if(customer.id) result = await myfetch.put(`customer/${customer.id}`, customer)
+
+      //Senão, chama o método POST para criar um novo registro
+      else result = await myfetch.post('customer', customer)
+
       setState({...state,
         showWaiting: false, //Esconde o backdrop
         notification: {   show:true, severity: 'success', message: 'Dados foram salvos com sucesso!'}
       })
-      //TODO: Voltar para a pagina de listagem
-    }
+        }
     catch(error) {
       setState({...state,
         showWaiting: false, //Esconde o backdrop
@@ -63,15 +132,41 @@ export default function CustomersForm() {
 
   function handleNotificationClose() {
     const status = notifitication.severity
-      //Fecha a barra de notificação
+      
+    //Fecha a barra de notificação
       setState({...state, notification: { show: false, severity: status, message: ''  }})
 
       //Volta para a pagina de clientes
-      if (status === 'success') navigate('/customers')
+      if (status === 'success') navigate('..', { relative: 'path'})
+  }
+
+  function handleBackButtonClose(event) {
+    //Se o formulário tiver sido modificado, abre a caixa de diálogo para perguntar se quer mesmo voltar, perdendo as alterações
+    if(isFormModified) setState({...state, openDialogue: true })
+
+    //Senão volta a página de listagem
+    else navigate('..', { relative: 'path' })
+  }
+
+  function handleDialogueClose(answer) {
+
+    //Fechamos a caixa de diálogo
+    setState({ ...state, openDialogue: false})
+
+    //Se o usuário tiver respondido que quer voltar á página de listagem mesmo com alterações pendentes, faremos a vontade dele
+    if(answer) navigate('..', { relative: 'path' })
   }
   
   return(
     <>
+
+      <ConfirmDialog
+        tittle="Atenção"
+        open={openDialogue}
+        onClose={handleDialogueClose}
+      >
+        Há alterações que ainda não foram salvas. Deseja mesmo voltar?
+      </ConfirmDialog>
 
       <Waiting show={showWaiting} />
 
@@ -89,6 +184,7 @@ export default function CustomersForm() {
       <form onSubmit={handleFormSubmit}>
 
         <Box className="form_fields">
+          
           <TextField
           id="name"
           name="name"
@@ -98,28 +194,37 @@ export default function CustomersForm() {
           fullWidth
           value={customer.name}
           onChange={handleFieldChange}
+          autoFocus
           />
+          
+          <InputMask
+            mask="999.999.999-99"
+            maskChar=" "
+            value={customer.ident_document}
+            onChange={handleFieldChange}
+          >
+            {
+              () => <TextField 
+                id="ident_document"
+                name="ident_document" 
+                label="CPF" 
+                variant="filled"
+                required
+                fullWidth
+              />
+            }
+          </InputMask>
 
-          <TextField
-          id="ident_document"
-          name="ident_document"
-          label="CPF"
-          variant="filled"
-          required
-          fullWidth
-          value={customer.ident_document}
-          onChange={handleFieldChange}
-          />
-
-          <TextField
-          id="birth_date"
-          name="birth_date"
-          label="Data de Nascimento"
-          variant="filled"
-          fullWidth
-          value={customer.birth_date}
-          onChange={handleFieldChange}
-          />
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptLocale}>
+            <DatePicker
+              label="Data de nascimento"
+              value={customer.birth_date}
+              onChange={ value => 
+                handleFieldChange({ target: { name: 'birth_date', value } }) 
+              }
+              slotProps={{ textField: { variant: 'filled', fullWidth: true } }}
+            />
+          </LocalizationProvider>
 
           <TextField
           id="street_name"
@@ -162,7 +267,7 @@ export default function CustomersForm() {
           variant="filled"
           required
           fullWidth
-          value={customer.neighborhood}
+          value={customer.neightborhood}
           onChange={handleFieldChange}
           />
 
@@ -195,16 +300,23 @@ export default function CustomersForm() {
           ))}
         </TextField>
 
-          <TextField
-          id="phone"
-          name="phone"
-          label="Celular/Telefone de contato"
-          variant="filled"
-          required
-          fullWidth
-          value={customer.phone}
-          onChange={handleFieldChange}
-          />
+          <InputMask
+            mask="(99)9999-9999"
+            formatChars={maskFormatChars}
+            maskChar=" "
+            value={customer.phone}
+            onChange={handleFieldChange}>
+              {
+                () => <TextField
+                        id="phone"
+                        name="phone"
+                        label="Celular/Telefone de contato"
+                        variant="filled"
+                        required
+                        fullWidth
+                        />
+              }
+          </InputMask>
 
           <TextField
           id="email"
@@ -220,7 +332,9 @@ export default function CustomersForm() {
 
         <Toolbar className="salvar_voltar">
           <Button variant="contained" color="secondary" type="submit"> Salvar </Button>
-          <Button variant="outlined"> Voltar </Button>
+          
+          <Button variant="outlined"
+            onClick={handleBackButtonClose}> Voltar </Button>
         </Toolbar>
 
       </form>

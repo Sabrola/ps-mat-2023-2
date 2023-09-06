@@ -10,18 +10,23 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import { Link } from 'react-router-dom'
+import ConfirmDialogue from '../components/ui/ConfirmDialog'
 
 export default function CustomersList() {
 
   const API_ENDPOINT = import.meta.env.VITE_API_BASE + 'customer'
 
   const [state, setState] = React.useState({
-    customers: {}
+    customers: {},
+    openDialogue: false,
+    DeleteId: null
   })
 
   // Desestruturando as variáveis de estado
   const {
-    customers
+    customers,
+    openDialogue,
+    deleteId
   } = state
 
   // Este useEffect() será executado apenas uma vez, durante o
@@ -77,7 +82,7 @@ export default function CustomersList() {
       headerName: 'Município/UF',
       width: 300,
       // Colocando dois campos na mesma célula
-      valueGetter: params => params.row.municipality + '/' + params.row.estate
+      valueGetter: params => params.row.municipality + '/' + params.row.state
     },
     {
       field: 'phone',
@@ -120,8 +125,15 @@ export default function CustomersList() {
     }
   ];
 
-  async function handleDeleteButtonClick(id) {
-    if(confirm('Deseja realmente excluir este item?')) {
+  function handleDeleteButtonClick(id) {
+    SetState({ ...state, deleteId: id, openDialogue: true })
+  }
+
+  async function handleDialogueClose(answer) {
+    //fecha a caixa de diálogo de confirmação
+    setState({ ...state, openDialogue: false})
+
+    if(answer) {
       try {
         // Faz a chamada ao back-end para excluir o cliente
         const result = await fetch(`https://api.faustocintra.com.br/customers/${id}`, {
