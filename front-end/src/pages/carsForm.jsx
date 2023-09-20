@@ -30,10 +30,10 @@ export default function CarsForm() {
     model: '',
     color: '',
     year_manufacture: '',
-    imported: '',
+    imported: false,
     plates: '',
-    selling_date:'',
-    selling_price: '' 
+    selling_date: undefined,
+    selling_price: parseInt('')
   }
 
   const [state, setState] = React.useState({
@@ -209,7 +209,7 @@ export default function CarsForm() {
   }
 
   function handleNotificationClose() {
-    const status = notifitication.severity
+    const status = notification.severity
       
     //Fecha a barra de notificação
       setState({...state, notification: { show: false, severity: status, message: ''  }})
@@ -269,7 +269,7 @@ export default function CarsForm() {
           label="Marca do carro"
           variant="filled"
           required
-          fullWidth
+          fullwidth
           value={car.brand}
           onChange={handleFieldChange}
           autoFocus
@@ -281,7 +281,7 @@ export default function CarsForm() {
           label="Modelo do carro"
           variant="filled"
           required
-          fullWidth
+          fullwidth
           value={car.model}
           onChange={handleFieldChange}
           />
@@ -292,7 +292,7 @@ export default function CarsForm() {
           label="Cor do carro"
           variant="filled"
           required
-          fullWidth
+          fullwidth
           value={car.color}
           onChange={handleFieldChange}
           />
@@ -304,7 +304,7 @@ export default function CarsForm() {
             label="ano de Fabricação"
             variant="filled"
             required
-            fullWidth
+            fullwidth
             onChange={handleFieldChange}
             value={car.year_manufacture}
           >
@@ -318,13 +318,12 @@ export default function CarsForm() {
           <FormControlLabel
             id="imported"
             name="imported"
-            variant="filled"
-            label="importado" 
-            fullWidth
-            type="bool"
-            control={<Switch />}
             value={car.imported}
-            onChange={handleFieldChange}
+            control={
+                <Switch color="primary" />}
+            label="É importado?"
+            labelPlacement="start"
+            onClick={handleFieldChange}
           />
           
           <InputMask
@@ -340,7 +339,7 @@ export default function CarsForm() {
                 label="N° da Placa" 
                 variant="filled"
                 required
-                fullWidth
+                fullwidth
               />
             }
           </InputMask>
@@ -352,27 +351,20 @@ export default function CarsForm() {
               onChange={ value =>
                 handleFieldChange({ target: { name: 'selling_date', value } })
               }
-              slotProps={{ textField: { variant: 'filled', fullWidth: true } }}
+              slotProps={{ textField: { variant: 'filled', fullwidth: true } }}
             />
           </LocalizationProvider>
 
-          <InputMask
-            mask="999999999999999"
-            formatChars={maskFormatChars}
-            maskChar=" "
-            value={car.selling_price}
-            onChange={handleFieldChange}
-          >
-            {
-              () => <TextField
-                id="selling_price"
-                name="selling_price"
-                label="Preço de venda"
-                variant='filled'
-                fullWidth
-              />
-            }
-          </InputMask>
+          <TextField
+          id="selling_price"
+          name="selling_price"
+          label="Preço de venda"
+          variant="filled"
+          fullwidth
+          value={car.selling_price}
+          type='number'
+          onChange={handleFieldChange}
+          />
 
       </Box>
 
