@@ -18,5 +18,11 @@ Repositório da disciplina Eletiva II - Programação de Scripts, 5º semestre A
 ##Para checar se deu certo
     npx prisma studio
 
+##editar uma tabela
+npx prisma migrate dev --name "nome_tabela"
+
+##Para correlacionar duas tabelas (chave estrangeira)
+    npx prisma migrate dev --name relation-"tabela1"-"tabela2"
+
 2023-06-18Too:00:002
 ##

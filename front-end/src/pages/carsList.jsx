@@ -134,7 +134,15 @@ export default function CarsList() {
     {
       field: 'selling_price',
       headerName: 'Preço de venda',
-      width: 180
+      headerAlign: 'right',
+      align: 'right',
+      width: 200,
+      valueFormatter: params => {
+        if(params.value) return Number(params.value).toLocaleString(
+          'pt-BR', { style: 'currency', currency: 'BRL'} 
+        ) 
+        else return ''
+      }
     },
     {
       field: 'edit',

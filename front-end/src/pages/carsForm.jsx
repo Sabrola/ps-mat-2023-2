@@ -17,7 +17,7 @@ import ptLocale from 'date-fns/locale/pt-BR'
 import { parseISO } from 'date-fns'
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-
+import InputAdornment from '@mui/material/InputAdornment';
 
 export default function CarsForm() {
 
@@ -53,6 +53,9 @@ export default function CarsForm() {
   } = state
 
   const year = [
+
+    //Anos do mais recente para o mais antigo
+    //Professor
     {label: 1940, value: 1940},
     {label: 1941, value: 1941},
     {label: 1942, value: 1942},
@@ -139,11 +142,11 @@ export default function CarsForm() {
     {label: 2023, value: 2023}
   ]
 
-
   const maskFormatChars = {
     '9': '[0-9]',
     'a': '[A-Za-z]',
     '*': '[a-Za-z0-9]',
+    '@': '[A-Ja-j0-9]', //Aceita letras de A a J (maíusculas ou )
     '_': '[\s0-9 ]' //Um espaço em branco ou um dígito
   }
 
@@ -327,9 +330,10 @@ export default function CarsForm() {
           />
           
           <InputMask
-            mask="aaa-9a99"
+            FormatChars={maskFormatChars}
+            mask="aaa-9@99"
             maskChar=" "
-            value={car.plates}
+            value={car.plates.toLocaleUpperCase() /*Placa em maíuscula*/}
             onChange={handleFieldChange}
           >
             {
@@ -361,6 +365,7 @@ export default function CarsForm() {
           label="Preço de venda"
           variant="filled"
           fullwidth
+          inputProps={ { startAdornment: <InputAdornment position="start">R$</InputAdornment>} }
           value={car.selling_price}
           type='number'
           onChange={handleFieldChange}
