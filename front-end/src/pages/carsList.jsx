@@ -22,7 +22,7 @@ export default function CarsList() {
     openDialog: false,
     deleteId: null,
     showWaiting: false,
-    notification: {   show: false, severity: 'success', message: ''   }
+    notification: { show: false, severity: 'success', message: '' }
   })
 
   // Desestruturando as variáveis de estado
@@ -113,9 +113,11 @@ export default function CarsList() {
     {
       field: 'imported',
       headerName: 'Importado',
-      align: 'center',
-      headerAlign: 'center',
-      width: 180
+      width: 200,
+      valueFormatter: params => {
+        if(params.value === true)  return 'Sim'
+        return 'Não'
+      }
     },
     {
       field: 'plates',

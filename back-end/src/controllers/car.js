@@ -18,11 +18,15 @@ controller.create = async function(req, res) {
 }
 
 controller.retrieveAll = async function(req, res) {
+
+    let include = []    //Por padrão não inclui nenhum relancionamento
+
+    //Somente vai incluir entidades realacionads se a querrystring "related" for passada ba URL 
+    if(req.query.related) include.customers - true
+
     try {
         const result = await prisma.car.findMany({
-            include: {
-                customer: true
-            },
+            include,
             orderBy: [
                 { brand: 'asc' },
                 { model:'asc' }
