@@ -18,6 +18,8 @@ import CustomersForm from './pages/CustomersForm'
 import CarsList from './pages/carsList'
 import CarsForm from './pages/carsForm'
 
+import Login from './pages/Login'
+
 function App() {
   return (
     <>
@@ -36,6 +38,7 @@ function App() {
 
               <Routes>
                 <Route path="/" element={ <Homepage /> } />
+                <Route path="/login" element={ <Login/> } />
                 <Route path="/customers" element={ <CustomersList /> } />
                 <Route path="/customers/new" element={ <CustomersForm /> } />
                 <Route path="/customers/:id" element={ <CustomersForm /> } />

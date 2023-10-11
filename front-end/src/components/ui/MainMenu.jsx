@@ -65,6 +65,16 @@ export default function MainMenu() {
           Carros
         </MenuItem>
 
+        <Divider/>
+
+        <MenuItem 
+          onClick={handleClose}
+          component={Link}
+          to="/login"
+        >
+        Login
+        </MenuItem>
+
       </Menu>
     </div>
   );
