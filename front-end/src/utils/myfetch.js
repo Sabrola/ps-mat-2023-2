@@ -43,19 +43,19 @@ myfetch.post = async function(path, body) {
 myfetch.put = async function(path, body) {
   const response = await fetch(baseUrl + path, defaultOptions(body, 'PUT'))
   if(response.ok) return true
-  else throw new HttpError(response.status,getErrorDescription(response))
+  else throw new HttpError(response.status, getErrorDescription(response))
 }
 
 myfetch.get = async function(path) {
   const response = await fetch(baseUrl + path, defaultOptions())
   if(response.ok) return response.json()
-  else throw new HttpError(response.status,getErrorDescription(response))
+  else throw new HttpError(response.status, getErrorDescription(response))
 }
 
 myfetch.delete = async function(path) {
   const response = await fetch(baseUrl + path, defaultOptions(null, 'DELETE'))
   if(response.ok) return true   // Não retorna json()
-  else throw new HttpError(response.status,getErrorDescription(response))
+  else throw new HttpError(response.status, getErrorDescription(response))
 }
 
 export default myfetch

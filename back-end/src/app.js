@@ -2,7 +2,7 @@ import express, { json, urlencoded } from "express";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import dotenv from 'dotenv'
-import protectRoute from './lib/protectRoute.js'
+import protectRoutes from './lib/protectRoutes.js'
 
 import cors from 'cors'
 
@@ -18,6 +18,7 @@ app.use(cors({
     origin: process.env.FRONT_ORIGIN,
     credentials: true
 }))
+
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
@@ -29,7 +30,7 @@ app.use("/user", usersRouter);
 ///////////////////////////////////////////////////////////////
 
 //Protege as rotas, exigindo autenticação prévia
-app.use(protectRoute)
+app.use(protectRoutes)
 
 import carRouter from './routes/car.js'
 app.use('/car', carRouter)
