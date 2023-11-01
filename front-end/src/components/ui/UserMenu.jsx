@@ -36,26 +36,51 @@ export default function UserMenu({user}) {
   if(user) {    // Existe usuário autenticado
     return <>
 
-      <ConfirmDialog title="Atenção" open={openDialog} onClose={handleDialogClose} >
+      <ConfirmDialog
+        title="Atenção"
+        open={openDialog}
+        onClose={handleDialogClose}
+      >
         Deseja realmente sair?
       </ConfirmDialog>
 
-      <Button variant="text" color="secondary" startIcon={<PersonIcon />} onClick={handleClick} sx={{ mr: 2 }} >
+      <Button 
+        variant="text"
+        color="secondary"
+        startIcon={<PersonIcon />}
+        onClick={handleClick}
+        sx={{ mr: 2 }}
+      >
         { user?.first_name + ' ' + user?.last_name }  
       </Button>
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose} MenuListProps={{ 'aria-labelledby': 'basic-button' }} PaperProps={{ style: { minWidth: '200px' } }} >
-        
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button'
+        }}
+        PaperProps={{
+          style: { minWidth: '200px' }
+        }}
+      >
         <MenuItem onClick={confirmLogout}>
           Sair
-        </MenuItem>
-         
+        </MenuItem> 
       </Menu>
     </>
   }
   else {
     return <>
-      <Button variant="text" color="secondary" component={Link} to="/login" startIcon={<LoginIcon />} sx={{ mr: 2 }} >
-        Entrar
+      <Button 
+          variant="text"
+          color="secondary"
+          component={Link}
+          to="/login"
+          startIcon={<LoginIcon />}
+          sx={{ mr: 2 }}
+        >
+          Entrar
       </Button>
     </>
   }
