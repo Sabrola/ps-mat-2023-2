@@ -39,6 +39,7 @@ export default function CarsForm() {
 
   const [state, setState] = React.useState({
     car: carDefaults,
+    customers: [],
     showWaiting: false,
     notification: {   show: false, severity: 'success', message: ''   },
     openDialogue: false,
@@ -47,6 +48,7 @@ export default function CarsForm() {
 
   const {
     car,
+    customers,
     showWaiting,
     notification,
     openDialogue,
@@ -80,18 +82,22 @@ export default function CarsForm() {
 
       let car = carDefaults
 
-      //Se estivermos no modo de atualização [..]
+      //Se estivermos no modo de atualização, devemos carregar o
+      // registro indicado no parâmetro da rota
       if(isUpdating) {
         car = await myfetch.get(`customers./${params.id}`)
         car.selling_date = parseISO(car.selling_date)
       }
 
-      const result = await myfetch.get(`car/${params.id}`)
+      // Busca a listagem de clientes para preencher o componente
+      // de escolha
+      let customers = await myfetch.get('customer')
 
-      //
-      result.selling_date = parseISO(result.selling_date)
+      // Cria um cliente "fake" que permite não selecionar nenhum
+      // cliente
+      customers.unshift({id: null, name: '(Nenhum cliente)'})
 
-      setState({...state, showWaiting: false, car: result})
+      setState({ ...state, showWaiting: false, car, customers })
     }
     catch(error) {
       setState({...state,
@@ -310,22 +316,22 @@ export default function CarsForm() {
           </LocalizationProvider>
 
           <TextField
-            id="customer.id"
-            name="customer.id" 
-            label="Cliente Adquirente"
+            id="customer_id"
+            name="customer_id" 
+            label="Cliente adquirente"
             select
             defaultValue=""
             fullWidth
             variant="filled"
             helperText="Selecione o cliente"
-            value={car.customer.id}
+            value={car.customer_id}
             onChange={handleFieldChange}
           >
-            {year.map((customer) => (
-            <MenuItem key={customer.id} value={customer.id}>
-              {customer.name}
-            </MenuItem>
-          ))}
+            {customers.map(customer => (
+              <MenuItem key={customer.id} value={customer.id}>
+                {customer.name}
+              </MenuItem>
+            ))}
           </TextField>
 
       </Box>
